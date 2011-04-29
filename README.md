@@ -1,3 +1,3 @@
-### Controller module dsl
+### Web Controller xtext project
 
-DSL to model part of the MVC pattern of most php frameworks.
+Small DSL to model part of the MVC pattern of php frameworks.
