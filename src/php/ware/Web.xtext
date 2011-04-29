@@ -1,0 +1,68 @@
+grammar php.ware.Web with org.eclipse.xtext.common.Terminals
+
+generate web "http://www.ware.php/Web"
+
+import "classpath:/php/ware/Entity.ecore" as ent
+
+WebModel:
+    elements+=AbstractElement*;
+
+AbstractElement:
+    PackageDeclaration | Import | Module | Controller;
+
+Import:
+    'import' importedNamespace=QualifiedNameWithWildCard;
+
+PackageDeclaration:
+    'package' name=QualifiedName '{'
+        elements+=AbstractElement*
+    '}';
+
+Module:
+    'module' name=ID '{'
+        controllers+=Controller+
+    '}';
+    
+Controller:
+    'controller' name=ID '{'
+        actions+=AbstractAction+
+    '}';
+
+AbstractAction:
+    GenericAction | CrudAction; 
+
+GenericAction:
+    'action' name=ID '{'
+        ('render' template=ID)?
+        (navigate=NavigationType navigatedAction=[AbstractAction])?
+    '}';
+
+CrudAction:
+    operation=ActionType type=[ent::Entity] multi?='[]'? 'action' name=ID '{'
+	    (
+	        'include' '(' 
+	            includedFeatures+=[ent::StructuralFeature] 
+	            (',' includedFeatures+=[ent::StructuralFeature])* 
+	        ')'
+	    )?
+	    (
+	        'exclude' '(' 
+	            excludedFeatures+=[ent::StructuralFeature]
+	            (',' excludedFeatures+=[ent::StructuralFeature])* 
+	        ')'
+	    )?
+	    ('render' template=ID)?
+	    (navigate=NavigationType navigatedAction=[AbstractAction])?
+    '}';
+        
+enum ActionType:
+    create | read | update | delete;
+    
+enum NavigationType:
+    forward | redirect;
+
+QualifiedNameWithWildCard:
+    QualifiedName '.*'?;
+
+QualifiedName:
+    ID ('.' ID)*;
